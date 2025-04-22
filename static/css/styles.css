@@ -1,0 +1,190 @@
+body {
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.company-card {
+  height: 100%;
+  transition: transform 0.2s;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.company-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.company-icon {
+  font-size: 2rem;
+}
+
+.card-header {
+  background-color: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.125);
+}
+
+.company-metrics {
+  font-size: 0.9rem;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.metric-row:last-child {
+  border-bottom: none;
+}
+
+.metric-label {
+  display: flex;
+  align-items: center;
+  color: #6c757d;
+}
+
+.metric-label svg {
+  margin-right: 8px;
+}
+
+.metric-value {
+  font-weight: 500;
+}
+
+.recommendation {
+  text-align: center;
+}
+
+.badge {
+  font-size: 0.9rem;
+  padding: 8px 12px;
+  border-radius: 20px;
+}
+
+.badge-shrink {
+  background-color: #dc3545;
+  color: white;
+}
+
+.badge-maintain {
+  background-color: #198754;
+  color: white;
+}
+
+.nash-equilibrium-item {
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.payoff-cell {
+  text-align: center;
+}
+
+.company-payoff {
+  font-weight: 500;
+  font-size: 1.1rem;
+}
+
+.company-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+.chart-container {
+  position: relative;
+  height: 300px;
+}
+
+.tab-content {
+  padding-top: 20px;
+}
+
+.positive-change {
+  color: #198754;
+}
+
+.negative-change {
+  color: #dc3545;
+}
+
+.insight-item {
+  background-color: #f8f9fa;
+  border-left: 4px solid #0d6efd;
+  padding: 10px 15px;
+  margin-bottom: 10px;
+  border-radius: 0 5px 5px 0;
+}
+
+.market-condition {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.market-condition:last-child {
+  border-bottom: none;
+}
+
+.market-condition-label {
+  color: #6c757d;
+}
+
+.market-condition-value {
+  font-weight: 500;
+}
+
+.scenario-item {
+  background-color: #f8f9fa;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.scenario-item .remove-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  cursor: pointer;
+  color: #dc3545;
+}
+
+.simulation-result {
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.simulation-result:last-child {
+  border-bottom: none;
+}
+
+.simulation-scenario {
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.simulation-nash {
+  background-color: #f8f9fa;
+  padding: 8px 12px;
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+.simulation-recommendations {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chart-container img {
+  max-width: 100%;
+  height: auto;
+}

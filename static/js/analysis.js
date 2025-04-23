@@ -48,47 +48,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fetch available years
   async function fetchYears() {
-    try {
-      const response = await fetch("/api/years")
-      if (!response.ok) {
-        console.error("Failed to fetch years from API")
-        return [2018, 2019, 2020, 2021, 2022, 2023] // Fallback years
-      }
-      const years = await response.json()
-      if (!years || !years.length) {
-        console.error("No years returned from API")
-        return [2018, 2019, 2020, 2021, 2022, 2023] // Fallback years
-      }
-      return years
-    } catch (error) {
-      console.error("Error fetching years:", error)
-      return [2018, 2019, 2020, 2021, 2022, 2023] // Fallback years
+    const response = await fetch("/api/years")
+    if (!response.ok) {
+      throw new Error("Failed to fetch years")
     }
+    return await response.json()
   }
 
   // Populate year selector dropdown
   function populateYearSelector(years) {
     const selector = document.getElementById("yearSelector")
-    if (!selector) {
-      console.error("Year selector element not found")
-      return
-    }
-
-    // Clear existing options
     selector.innerHTML = ""
 
-    console.log("Populating years:", years)
-
-    // Add new options
     years.forEach((year) => {
       const option = document.createElement("option")
-      option.value = year.toString()
-      option.textContent = year.toString()
+      option.value = year
+      option.textContent = year
       selector.appendChild(option)
     })
-
-    // Log the number of options added
-    console.log(`Added ${selector.options.length} year options to dropdown`)
   }
 
   // Load analysis data for a specific year
@@ -157,20 +134,25 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Update analysis page with data
   function updateAnalysisPage(data) {
+    if (!data) {
+      console.error("No data available to update the analysis page")
+      return
+    }
+    
     // Update Nash equilibrium
-    updateNashEquilibrium(data.nash_equilibrium)
+    updateNashEquilibrium(data.nash_equilibrium || [])
 
     // Update strategy recommendations
-    updateStrategyRecommendations(data.company_data)
+    updateStrategyRecommendations(data.company_data || {})
 
     // Update key insights
-    updateKeyInsights(data.insights)
+    updateKeyInsights(data.insights || [])
 
     // Update economic factors
-    updateEconomicFactors(data.economic_data)
+    updateEconomicFactors(data.economic_data || {})
 
     // Update consumer awareness
-    updateConsumerAwareness(data.consumer_data)
+    updateConsumerAwareness(data.consumer_data || {})
   }
 
   // Update Nash equilibrium section
@@ -178,12 +160,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("nashEquilibrium")
     container.innerHTML = ""
 
-    equilibria.forEach((eq) => {
-      const item = document.createElement("div")
-      item.className = "nash-equilibrium-item"
-      item.textContent = eq
-      container.appendChild(item)
-    })
+    if (equilibria && equilibria.length > 0) {
+      equilibria.forEach((eq) => {
+        const item = document.createElement("div")
+        item.className = "nash-equilibrium-item"
+        item.textContent = eq
+        container.appendChild(item)
+      })
+    } else {
+      container.innerHTML = "<p class='text-muted'>No Nash equilibrium data available</p>"
+    }
   }
 
   // Update strategy recommendations
@@ -191,21 +177,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("strategyRecommendations")
     container.innerHTML = ""
 
-    const companies = ["Coca Cola", "Good Day", "Parle G"]
+    const companies = ["Milk Bikis", "Good Day", "Parle G"]
 
     companies.forEach((company) => {
       const data = companyData[company]
-      const badgeClass = data.recommendation === "shrink" ? "badge-shrink" : "badge-maintain"
-      const recommendationText = data.recommendation === "shrink" ? "Shrink Product" : "Maintain Size"
+      if (data && data.recommendation) {
+        const badgeClass = data.recommendation === "shrink" ? "badge-shrink" : "badge-maintain"
+        const recommendationText = data.recommendation === "shrink" ? "Shrink Product" : "Maintain Size"
 
-      const item = document.createElement("div")
-      item.className = "d-flex justify-content-between align-items-center mb-2"
-      item.innerHTML = `
-                <span>${company}</span>
-                <span class="badge ${badgeClass}">${recommendationText}</span>
-            `
+        const item = document.createElement("div")
+        item.className = "d-flex justify-content-between align-items-center mb-2"
+        item.innerHTML = `
+                  <span>${company}</span>
+                  <span class="badge ${badgeClass}">${recommendationText}</span>
+              `
 
-      container.appendChild(item)
+        container.appendChild(item)
+      } else {
+        const item = document.createElement("div")
+        item.className = "d-flex justify-content-between align-items-center mb-2"
+        item.innerHTML = `
+                  <span>${company}</span>
+                  <span class="badge badge-secondary">No Data</span>
+              `
+        container.appendChild(item)
+      }
     })
   }
 
@@ -231,27 +227,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("economicFactors")
     container.innerHTML = ""
 
-    if (economicData) {
+    if (economicData && Object.keys(economicData).length > 0) {
       container.innerHTML = `
                 <div class="market-condition">
                     <div class="market-condition-label">GDP Growth Rate</div>
-                    <div class="market-condition-value">${economicData.gdp_growth_rate}%</div>
+                    <div class="market-condition-value">${economicData.gdp_growth_rate || 'N/A'}%</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">Unemployment Rate</div>
-                    <div class="market-condition-value">${economicData.unemployment_rate}%</div>
+                    <div class="market-condition-value">${economicData.unemployment_rate || 'N/A'}%</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">Consumer Confidence</div>
-                    <div class="market-condition-value">${economicData.consumer_confidence_index}/100</div>
+                    <div class="market-condition-value">${economicData.consumer_confidence_index || 'N/A'}/100</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">Interest Rate</div>
-                    <div class="market-condition-value">${economicData.interest_rate}%</div>
+                    <div class="market-condition-value">${economicData.interest_rate || 'N/A'}%</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">FMCG Sector Growth</div>
-                    <div class="market-condition-value">${economicData.fmcg_sector_growth}%</div>
+                    <div class="market-condition-value">${economicData.fmcg_sector_growth || 'N/A'}%</div>
                 </div>
             `
     } else {
@@ -264,27 +260,33 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("consumerAwareness")
     container.innerHTML = ""
 
-    if (consumerData) {
+    if (consumerData && Object.keys(consumerData).length > 0) {
+      // Calculate average brand loyalty
+      const milkBikisLoyalty = consumerData.milk_bikis_brand_loyalty || 0
+      const goodDayLoyalty = consumerData.good_day_brand_loyalty || 0
+      const parleGLoyalty = consumerData.parle_g_brand_loyalty || 0
+      const avgLoyalty = ((milkBikisLoyalty + goodDayLoyalty + parleGLoyalty) / 3).toFixed(1)
+
       container.innerHTML = `
                 <div class="market-condition">
                     <div class="market-condition-label">Shrinkflation Awareness</div>
-                    <div class="market-condition-value">${consumerData.shrinkflation_awareness}%</div>
+                    <div class="market-condition-value">${consumerData.shrinkflation_awareness || 'N/A'}%</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">Social Media Mentions</div>
-                    <div class="market-condition-value">${consumerData.social_media_mentions}</div>
+                    <div class="market-condition-value">${consumerData.social_media_mentions || 'N/A'}</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">Negative Sentiment</div>
-                    <div class="market-condition-value">${consumerData.negative_sentiment}%</div>
+                    <div class="market-condition-value">${consumerData.negative_sentiment || 'N/A'}%</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">Price vs Quantity Importance</div>
-                    <div class="market-condition-value">${consumerData.price_vs_quantity_importance}</div>
+                    <div class="market-condition-value">${consumerData.price_vs_quantity_importance || 'N/A'}</div>
                 </div>
                 <div class="market-condition">
                     <div class="market-condition-label">Brand Loyalty (Avg)</div>
-                    <div class="market-condition-value">${((consumerData.coca_cola_brand_loyalty + consumerData.good_day_brand_loyalty + consumerData.parle_g_brand_loyalty) / 3).toFixed(1)}/10</div>
+                    <div class="market-condition-value">${avgLoyalty}/10</div>
                 </div>
             `
     } else {
@@ -352,7 +354,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Update last updated timestamp
   function updateLastUpdated(timestamp) {
     const lastUpdatedElement = document.getElementById("lastUpdated")
-    if (lastUpdatedElement) {
+    if (lastUpdatedElement && timestamp) {
       const date = new Date(timestamp)
       lastUpdatedElement.textContent = date.toLocaleString()
     }

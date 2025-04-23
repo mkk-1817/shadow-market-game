@@ -12,7 +12,7 @@
     <div class="container-fluid">
         <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" href="/analysis">
+                <a class="navbar-brand" href="/">
                     <i class="bi bi-graph-up"></i> Shadow Market Game
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -21,10 +21,10 @@
                 <div class="collapse navbar-collapse" id="navbarNav">
                     <ul class="navbar-nav">
                         <li class="nav-item">
-                            <a class="nav-link" href="/analysis">Home</a>
+                            <a class="nav-link" href="/">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="/analysis">Analysis Dashboard</a>
+                            <a class="nav-link active" href="/analysis">Detailed Analysis</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="/simulation">Market Simulation</a>
@@ -37,7 +37,7 @@
         <div class="container mt-4">
             <div class="row mb-4">
                 <div class="col-md-8">
-                    <h1 class="display-5">Shrinkflation Analysis Dashboard</h1>
+                    <h1 class="display-5">Detailed Analysis</h1>
                     <p class="lead text-muted">
                         In-depth game theory analysis for year <span id="analysisYear">{{ year }}</span>
                     </p>
@@ -50,58 +50,6 @@
                         <button id="runAnalysisBtn" class="btn btn-primary">
                             <i class="bi bi-play-fill"></i> Run Analysis
                         </button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Company Cards -->
-            <div class="row mb-4">
-                <div class="col-md-4">
-                    <div class="card company-card" id="milkBikisCard">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Milk Bikis</h5>
-                            <span class="company-icon">🍪</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="company-metrics">
-                                <!-- Metrics will be populated by JavaScript -->
-                            </div>
-                            <div class="recommendation mt-3">
-                                <!-- Recommendation will be populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card company-card" id="goodDayCard">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Good Day</h5>
-                            <span class="company-icon">🍪</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="company-metrics">
-                                <!-- Metrics will be populated by JavaScript -->
-                            </div>
-                            <div class="recommendation mt-3">
-                                <!-- Recommendation will be populated by JavaScript -->
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="card company-card" id="parleGCard">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="card-title mb-0">Parle G</h5>
-                            <span class="company-icon">🍘</span>
-                        </div>
-                        <div class="card-body">
-                            <div class="company-metrics">
-                                <!-- Metrics will be populated by JavaScript -->
-                            </div>
-                            <div class="recommendation mt-3">
-                                <!-- Recommendation will be populated by JavaScript -->
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -203,75 +151,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <ul class="nav nav-tabs card-header-tabs" id="chartTabs">
-                                <li class="nav-item">
-                                    <a class="nav-link active" data-bs-toggle="tab" href="#sizeChart">Product Size</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#priceChart">Product Price</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#ratioChart">Price/Size Ratio</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#marketShareChart">Market Share</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" data-bs-toggle="tab" href="#profitMarginChart">Profit Margin</a>
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="card-body">
-                            <div class="tab-content">
-                                <div class="tab-pane fade show active" id="sizeChart">
-                                    <canvas id="sizeChartCanvas" height="300"></canvas>
-                                </div>
-                                <div class="tab-pane fade" id="priceChart">
-                                    <canvas id="priceChartCanvas" height="300"></canvas>
-                                </div>
-                                <div class="tab-pane fade" id="ratioChart">
-                                    <canvas id="ratioChartCanvas" height="300"></canvas>
-                                </div>
-                                <div class="tab-pane fade" id="marketShareChart">
-                                    <canvas id="marketShareChartCanvas" height="300"></canvas>
-                                </div>
-                                <div class="tab-pane fade" id="profitMarginChart">
-                                    <canvas id="profitMarginChartCanvas" height="300"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row mb-4">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h5 class="card-title mb-0">Market Conditions</h5>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <div id="marketConditions">
-                                        <!-- Market conditions will be populated by JavaScript -->
-                                    </div>
-                                </div>
-                                <div class="col-md-6">
-                                    <div id="consumerTrends">
-                                        <!-- Consumer trends will be populated by JavaScript -->
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <footer class="bg-dark text-white py-4 mt-5">
@@ -294,6 +173,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/analysis.js') }}"></script>
 </body>
 </html>

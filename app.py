@@ -41,24 +41,24 @@ def init_db():
             products_data = []
             
             # Milk Bikis data - realistic shrinkflation pattern
-            milk_bikis_sizes = [150, 150, 145, 140, 135, 130, 125, 120]  # g
-            milk_bikis_prices = [20, 20, 20, 22, 22, 24, 25, 25]  # rupees
-            milk_bikis_market_share = [42, 43, 43.5, 44, 45, 45, 46, 47]  # percentage
-            milk_bikis_production_cost = [9, 9.2, 9.3, 9.5, 9.7, 9.9, 10.2, 10.5]  # rupees per unit
+            milk_bikis_sizes = [300, 300, 290, 275, 260, 250]  # ml
+            milk_bikis_prices = [18, 18, 18, 19, 20, 20]  # rupees
+            milk_bikis_market_share = [42, 43, 43.5, 44, 45, 45]  # percentage
+            milk_bikis_production_cost = [8, 8.2, 8.3, 8.5, 8.7, 8.9]  # rupees per unit
             
             # Good Day data - aggressive shrinkflation
-            good_day_sizes = [120, 110, 105, 100, 95, 90, 85, 80]  # g
-            good_day_prices = [8, 8, 9, 10, 10, 10, 12, 12]  # rupees
-            good_day_market_share = [28, 29, 29.5, 30, 30.5, 31, 31.5, 32]  # percentage
-            good_day_production_cost = [3.5, 3.6, 3.7, 3.8, 3.9, 4.0, 4.2, 4.4]  # rupees per unit
+            good_day_sizes = [120, 110, 105, 100, 95, 90]  # g
+            good_day_prices = [8, 8, 9, 10, 10, 10]  # rupees
+            good_day_market_share = [28, 29, 29.5, 30, 30.5, 31]  # percentage
+            good_day_production_cost = [3.5, 3.6, 3.7, 3.8, 3.9, 4.0]  # rupees per unit
             
             # Parle G data - conservative shrinkflation
-            parle_g_sizes = [90, 90, 88, 85, 82, 80, 78, 75]  # g
-            parle_g_prices = [5, 5, 5, 5, 5, 5, 6, 6]  # rupees
-            parle_g_market_share = [22, 23, 23.5, 24, 24.5, 25, 25.5, 26]  # percentage
-            parle_g_production_cost = [2.0, 2.1, 2.15, 2.2, 2.25, 2.3, 2.4, 2.5]  # rupees per unit
+            parle_g_sizes = [90, 90, 88, 85, 82, 80]  # g
+            parle_g_prices = [5, 5, 5, 5, 5, 5]  # rupees
+            parle_g_market_share = [22, 23, 23.5, 24, 24.5, 25]  # percentage
+            parle_g_production_cost = [2.0, 2.1, 2.15, 2.2, 2.25, 2.3]  # rupees per unit
             
-            years = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+            years = [2018, 2019, 2020, 2021, 2022, 2023]
             
             for i, year in enumerate(years):
                 # Milk Bikis
@@ -102,10 +102,14 @@ def init_db():
             
             products_collection.insert_many(products_data)
     
-    # Always run initial analysis for each year to ensure data is available
-    for year in range(2018, 2026):
-        if not analysis_collection.find_one({"year": year}):
-            run_game_theory_analysis(year)
+    # Check if we need to reset the database due to company name change
+    elif products_collection.count_documents({"company": "Coca Cola"}) > 0:
+        # Drop collections to reset data
+        products_collection.drop()
+        analysis_collection.drop()
+        market_collection.drop()
+        consumer_collection.drop()
+        economic_collection.drop()
     
     # Initialize market data if empty
     if market_collection.count_documents({}) == 0:
@@ -115,21 +119,21 @@ def init_db():
         except:
             # Generate realistic market data
             market_data = []
-            years = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+            years = [2018, 2019, 2020, 2021, 2022, 2023]
             
             # Inflation rates (%)
-            inflation_rates = [4.9, 3.7, 6.2, 5.5, 6.7, 5.2, 4.8, 4.5]
+            inflation_rates = [4.9, 3.7, 6.2, 5.5, 6.7, 5.2]
             
             # Raw material costs (index, 2018=100)
-            sugar_index = [100, 105, 112, 120, 135, 142, 150, 155]
-            wheat_index = [100, 103, 110, 125, 140, 148, 155, 160]
-            packaging_index = [100, 104, 108, 115, 125, 130, 135, 140]
+            sugar_index = [100, 105, 112, 120, 135, 142]
+            wheat_index = [100, 103, 110, 125, 140, 148]
+            packaging_index = [100, 104, 108, 115, 125, 130]
             
             # Consumer price sensitivity (scale 1-10)
-            price_sensitivity = [6.2, 6.4, 7.1, 7.5, 8.0, 8.2, 8.4, 8.5]
+            price_sensitivity = [6.2, 6.4, 7.1, 7.5, 8.0, 8.2]
             
             # Market competition intensity (scale 1-10)
-            competition_intensity = [7.0, 7.2, 7.5, 7.8, 8.0, 8.3, 8.5, 8.7]
+            competition_intensity = [7.0, 7.2, 7.5, 7.8, 8.0, 8.3]
             
             for i, year in enumerate(years):
                 market_data.append({
@@ -154,18 +158,18 @@ def init_db():
         except:
             # Generate realistic consumer data
             consumer_data = []
-            years = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+            years = [2018, 2019, 2020, 2021, 2022, 2023]
             
             # Awareness of shrinkflation (%)
-            awareness = [25, 30, 38, 45, 55, 65, 72, 78]
+            awareness = [25, 30, 38, 45, 55, 65]
             
             # Brand loyalty scores (scale 1-10)
-            milk_bikis_loyalty = [7.8, 7.7, 7.6, 7.4, 7.3, 7.2, 7.1, 7.0]
-            good_day_loyalty = [6.9, 6.8, 6.7, 6.5, 6.4, 6.3, 6.2, 6.1]
-            parle_g_loyalty = [8.2, 8.1, 8.0, 7.9, 7.8, 7.7, 7.6, 7.5]
+            milk_bikis_loyalty = [7.8, 7.7, 7.6, 7.4, 7.3, 7.2]
+            good_day_loyalty = [6.9, 6.8, 6.7, 6.5, 6.4, 6.3]
+            parle_g_loyalty = [8.2, 8.1, 8.0, 7.9, 7.8, 7.7]
             
             # Price importance vs. quantity importance (ratio)
-            price_quantity_ratio = [0.8, 0.85, 0.9, 1.0, 1.1, 1.2, 1.3, 1.4]
+            price_quantity_ratio = [0.8, 0.85, 0.9, 1.0, 1.1, 1.2]
             
             for i, year in enumerate(years):
                 consumer_data.append({
@@ -189,16 +193,16 @@ def init_db():
         except:
             # Generate realistic economic data
             economic_data = []
-            years = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
+            years = [2018, 2019, 2020, 2021, 2022, 2023]
             
             # GDP growth rates (%)
-            gdp_growth = [6.8, 6.5, 3.7, 8.7, 7.2, 6.1, 6.5, 6.8]
+            gdp_growth = [6.8, 6.5, 3.7, 8.7, 7.2, 6.1]
             
             # Unemployment rates (%)
-            unemployment = [6.1, 5.8, 8.0, 7.5, 6.0, 5.5, 5.2, 5.0]
+            unemployment = [6.1, 5.8, 8.0, 7.5, 6.0, 5.5]
             
             # Consumer confidence index (scale 0-100)
-            consumer_confidence = [75, 72, 58, 65, 70, 68, 72, 75]
+            consumer_confidence = [75, 72, 58, 65, 70, 68]
             
             for i, year in enumerate(years):
                 economic_data.append({
@@ -214,7 +218,7 @@ def init_db():
             economic_collection.insert_many(economic_data)
     
     # Run initial analysis for each year
-    for year in range(2018, 2026):
+    for year in range(2018, 2024):
         run_game_theory_analysis(year)
 
 # Game theory analysis using numpy for payoff calculations
@@ -309,21 +313,21 @@ def run_game_theory_analysis(year):
     payoffs = {}
     strategies = ["maintain", "shrink"]
     
-    for mb_strategy in strategies:
-        if mb_strategy not in payoffs:
-            payoffs[mb_strategy] = {}
+    for cc_strategy in strategies:
+        if cc_strategy not in payoffs:
+            payoffs[cc_strategy] = {}
             
         for gd_strategy in strategies:
-            if gd_strategy not in payoffs[mb_strategy]:
-                payoffs[mb_strategy][gd_strategy] = {}
+            if gd_strategy not in payoffs[cc_strategy]:
+                payoffs[cc_strategy][gd_strategy] = {}
                 
             for pg_strategy in strategies:
-                if pg_strategy not in payoffs[mb_strategy][gd_strategy]:
-                    payoffs[mb_strategy][gd_strategy][pg_strategy] = {}
+                if pg_strategy not in payoffs[cc_strategy][gd_strategy]:
+                    payoffs[cc_strategy][gd_strategy][pg_strategy] = {}
                 
                 # Calculate Milk Bikis payoff
-                mb_payoff = calculate_payoff(
-                    milk_bikis_data, mb_strategy,
+                milk_bikis_payoff = calculate_payoff(
+                    milk_bikis_data, cc_strategy,
                     good_day_data, gd_strategy,
                     parle_g_data, pg_strategy,
                     market_data, consumer_data
@@ -332,7 +336,7 @@ def run_game_theory_analysis(year):
                 # Calculate Good Day payoff
                 gd_payoff = calculate_payoff(
                     good_day_data, gd_strategy,
-                    milk_bikis_data, mb_strategy,
+                    milk_bikis_data, cc_strategy,
                     parle_g_data, pg_strategy,
                     market_data, consumer_data
                 )
@@ -340,13 +344,13 @@ def run_game_theory_analysis(year):
                 # Calculate Parle G payoff
                 pg_payoff = calculate_payoff(
                     parle_g_data, pg_strategy,
-                    milk_bikis_data, mb_strategy,
+                    milk_bikis_data, cc_strategy,
                     good_day_data, gd_strategy,
                     market_data, consumer_data
                 )
                 
-                payoffs[mb_strategy][gd_strategy][pg_strategy] = {
-                    "Milk Bikis": mb_payoff,
+                payoffs[cc_strategy][gd_strategy][pg_strategy] = {
+                    "Milk Bikis": milk_bikis_payoff,
                     "Good Day": gd_payoff,
                     "Parle G": pg_payoff
                 }
@@ -354,35 +358,35 @@ def run_game_theory_analysis(year):
     # Find Nash equilibria using best response analysis
     nash_equilibria = []
     
-    for mb_strategy in strategies:
+    for cc_strategy in strategies:
         for gd_strategy in strategies:
             for pg_strategy in strategies:
                 # Check if this is a Nash equilibrium
-                mb_payoff = payoffs[mb_strategy][gd_strategy][pg_strategy]["Milk Bikis"]
-                gd_payoff = payoffs[mb_strategy][gd_strategy][pg_strategy]["Good Day"]
-                pg_payoff = payoffs[mb_strategy][gd_strategy][pg_strategy]["Parle G"]
+                cc_payoff = payoffs[cc_strategy][gd_strategy][pg_strategy]["Milk Bikis"]
+                gd_payoff = payoffs[cc_strategy][gd_strategy][pg_strategy]["Good Day"]
+                pg_payoff = payoffs[cc_strategy][gd_strategy][pg_strategy]["Parle G"]
                 
                 # Check if Milk Bikis can improve by changing strategy
-                mb_can_improve = False
-                other_strategy = "maintain" if mb_strategy == "shrink" else "shrink"
-                if payoffs[other_strategy][gd_strategy][pg_strategy]["Milk Bikis"] > mb_payoff:
-                    mb_can_improve = True
+                cc_can_improve = False
+                other_strategy = "maintain" if cc_strategy == "shrink" else "shrink"
+                if payoffs[other_strategy][gd_strategy][pg_strategy]["Milk Bikis"] > cc_payoff:
+                    cc_can_improve = True
                 
                 # Check if Good Day can improve by changing strategy
                 gd_can_improve = False
                 other_strategy = "maintain" if gd_strategy == "shrink" else "shrink"
-                if payoffs[mb_strategy][other_strategy][pg_strategy]["Good Day"] > gd_payoff:
+                if payoffs[cc_strategy][other_strategy][pg_strategy]["Good Day"] > gd_payoff:
                     gd_can_improve = True
                 
                 # Check if Parle G can improve by changing strategy
                 pg_can_improve = False
                 other_strategy = "maintain" if pg_strategy == "shrink" else "shrink"
-                if payoffs[mb_strategy][gd_strategy][other_strategy]["Parle G"] > pg_payoff:
+                if payoffs[cc_strategy][gd_strategy][other_strategy]["Parle G"] > pg_payoff:
                     pg_can_improve = True
                 
                 # If no player can improve by changing strategy, this is a Nash equilibrium
-                if not (mb_can_improve or gd_can_improve or pg_can_improve):
-                    nash_equilibria.append(f"Milk Bikis: {mb_strategy.capitalize()}, Good Day: {gd_strategy.capitalize()}, Parle G: {pg_strategy.capitalize()}")
+                if not (cc_can_improve or gd_can_improve or pg_can_improve):
+                    nash_equilibria.append(f"Milk Bikis: {cc_strategy.capitalize()}, Good Day: {gd_strategy.capitalize()}, Parle G: {pg_strategy.capitalize()}")
     
     # If no Nash equilibrium is found, identify the most likely outcome
     if not nash_equilibria:
@@ -390,13 +394,13 @@ def run_game_theory_analysis(year):
         max_total_payoff = 0
         best_profile = None
         
-        for mb_strategy in strategies:
+        for cc_strategy in strategies:
             for gd_strategy in strategies:
                 for pg_strategy in strategies:
-                    total_payoff = sum(payoffs[mb_strategy][gd_strategy][pg_strategy].values())
+                    total_payoff = sum(payoffs[cc_strategy][gd_strategy][pg_strategy].values())
                     if total_payoff > max_total_payoff:
                         max_total_payoff = total_payoff
-                        best_profile = f"Milk Bikis: {mb_strategy.capitalize()}, Good Day: {gd_strategy.capitalize()}, Parle G: {pg_strategy.capitalize()}"
+                        best_profile = f"Milk Bikis: {cc_strategy.capitalize()}, Good Day: {gd_strategy.capitalize()}, Parle G: {pg_strategy.capitalize()}"
         
         nash_equilibria.append(f"{best_profile} (Dominant Total Payoff)")
     
@@ -553,10 +557,6 @@ def generate_insights(company_data, market_data, consumer_data, economic_data, n
         max_company, max_price, min_company, min_price
     ))
     
-    # Always ensure we have at least one insight
-    if not insights:
-        insights.append("Analysis suggests monitoring market conditions closely for optimal shrinkflation strategy.")
-    
     return insights
 
 def calculate_change(data, field, year):
@@ -577,12 +577,11 @@ def calculate_change(data, field, year):
 # Routes
 @app.route('/')
 def index():
-    return redirect(url_for('analysis'))
+    return render_template('index.html')
 
-# Remove the dashboard route since we're integrating everything into analysis
-# @app.route('/dashboard')
-# def dashboard():
-#     return render_template('dashboard.html')
+@app.route('/dashboard')
+def dashboard():
+    return render_template('dashboard.html')
 
 @app.route('/analysis')
 def analysis():
@@ -595,16 +594,8 @@ def simulation():
 
 @app.route('/api/years')
 def get_years():
-    try:
-        years = products_collection.distinct("year")
-        if not years:
-            # Fallback if no years in database
-            years = [2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025]
-        return jsonify(sorted(years))
-    except Exception as e:
-        print(f"Error fetching years: {e}")
-        # Return fallback years if there's an error
-        return jsonify([2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025])
+    years = products_collection.distinct("year")
+    return jsonify(sorted(years))
 
 @app.route('/api/analysis/<int:year>')
 def get_analysis(year):
@@ -892,14 +883,12 @@ def run_simulation_analysis(year, modified_data):
             market_share_change -= awareness_penalty * (1 - brand_loyalty) * 1.5  # Increased from 1 to 1.5
         
         # Adjust for economic conditions
-        # economic_factor = economic_data["consumer_confidence_index"] / 70  # type: ignore # Normalize around 70
+        # economic_factor = economic_data["consumer_confidence_index"] / 70  # Normalize around 70
         # market_share_change *= economic_factor
         
-        # Calculate new market share
         new_market_share = market_share
         
-        # Calculate profit based on market share and profit margin
-        market_size = 1000000  # Assumed market size in units
+        market_size = 1000000 
         units_sold = (market_size * new_market_share / 100)
         total_profit = units_sold * base_profit
         
@@ -912,21 +901,21 @@ def run_simulation_analysis(year, modified_data):
     payoffs = {}
     strategies = ["maintain", "shrink"]
     
-    for mb_strategy in strategies:
-        if mb_strategy not in payoffs:
-            payoffs[mb_strategy] = {}
+    for cc_strategy in strategies:
+        if cc_strategy not in payoffs:
+            payoffs[cc_strategy] = {}
             
         for gd_strategy in strategies:
-            if gd_strategy not in payoffs[mb_strategy]:
-                payoffs[mb_strategy][gd_strategy] = {}
+            if gd_strategy not in payoffs[cc_strategy]:
+                payoffs[cc_strategy][gd_strategy] = {}
                 
             for pg_strategy in strategies:
-                if pg_strategy not in payoffs[mb_strategy][gd_strategy]:
-                    payoffs[mb_strategy][gd_strategy][pg_strategy] = {}
+                if pg_strategy not in payoffs[cc_strategy][gd_strategy]:
+                    payoffs[cc_strategy][gd_strategy][pg_strategy] = {}
                 
                 # Calculate Milk Bikis payoff
-                mb_payoff = calculate_payoff(
-                    milk_bikis_data, mb_strategy,
+                cc_payoff = calculate_payoff(
+                    milk_bikis_data, cc_strategy,
                     good_day_data, gd_strategy,
                     parle_g_data, pg_strategy,
                     market, consumer
@@ -935,7 +924,7 @@ def run_simulation_analysis(year, modified_data):
                 # Calculate Good Day payoff
                 gd_payoff = calculate_payoff(
                     good_day_data, gd_strategy,
-                    milk_bikis_data, mb_strategy,
+                    milk_bikis_data, cc_strategy,
                     parle_g_data, pg_strategy,
                     market, consumer
                 )
@@ -943,13 +932,13 @@ def run_simulation_analysis(year, modified_data):
                 # Calculate Parle G payoff
                 pg_payoff = calculate_payoff(
                     parle_g_data, pg_strategy,
-                    milk_bikis_data, mb_strategy,
+                    milk_bikis_data, cc_strategy,
                     good_day_data, gd_strategy,
                     market, consumer
                 )
                 
-                payoffs[mb_strategy][gd_strategy][pg_strategy] = {
-                    "Milk Bikis": mb_payoff,
+                payoffs[cc_strategy][gd_strategy][pg_strategy] = {
+                    "Milk Bikis": cc_payoff,
                     "Good Day": gd_payoff,
                     "Parle G": pg_payoff
                 }
@@ -957,35 +946,35 @@ def run_simulation_analysis(year, modified_data):
     # Find Nash equilibria using best response analysis
     nash_equilibria = []
     
-    for mb_strategy in strategies:
+    for cc_strategy in strategies:
         for gd_strategy in strategies:
             for pg_strategy in strategies:
                 # Check if this is a Nash equilibrium
-                mb_payoff = payoffs[mb_strategy][gd_strategy][pg_strategy]["Milk Bikis"]
-                gd_payoff = payoffs[mb_strategy][gd_strategy][pg_strategy]["Good Day"]
-                pg_payoff = payoffs[mb_strategy][gd_strategy][pg_strategy]["Parle G"]
+                cc_payoff = payoffs[cc_strategy][gd_strategy][pg_strategy]["Milk Bikis"]
+                gd_payoff = payoffs[cc_strategy][gd_strategy][pg_strategy]["Good Day"]
+                pg_payoff = payoffs[cc_strategy][gd_strategy][pg_strategy]["Parle G"]
                 
                 # Check if Milk Bikis can improve by changing strategy
-                mb_can_improve = False
-                other_strategy = "maintain" if mb_strategy == "shrink" else "shrink"
-                if payoffs[other_strategy][gd_strategy][pg_strategy]["Milk Bikis"] > mb_payoff:
-                    mb_can_improve = True
+                cc_can_improve = False
+                other_strategy = "maintain" if cc_strategy == "shrink" else "shrink"
+                if payoffs[other_strategy][gd_strategy][pg_strategy]["Milk Bikis"] > cc_payoff:
+                    cc_can_improve = True
                 
                 # Check if Good Day can improve by changing strategy
                 gd_can_improve = False
                 other_strategy = "maintain" if gd_strategy == "shrink" else "shrink"
-                if payoffs[mb_strategy][other_strategy][pg_strategy]["Good Day"] > gd_payoff:
+                if payoffs[cc_strategy][other_strategy][pg_strategy]["Good Day"] > gd_payoff:
                     gd_can_improve = True
                 
                 # Check if Parle G can improve by changing strategy
                 pg_can_improve = False
                 other_strategy = "maintain" if pg_strategy == "shrink" else "shrink"
-                if payoffs[mb_strategy][gd_strategy][other_strategy]["Parle G"] > pg_payoff:
+                if payoffs[cc_strategy][gd_strategy][other_strategy]["Parle G"] > pg_payoff:
                     pg_can_improve = True
                 
                 # If no player can improve by changing strategy, this is a Nash equilibrium
-                if not (mb_can_improve or gd_can_improve or pg_can_improve):
-                    nash_equilibria.append(f"Milk Bikis: {mb_strategy.capitalize()}, Good Day: {gd_strategy.capitalize()}, Parle G: {pg_strategy.capitalize()}")
+                if not (cc_can_improve or gd_can_improve or pg_can_improve):
+                    nash_equilibria.append(f"Milk Bikis: {cc_strategy.capitalize()}, Good Day: {gd_strategy.capitalize()}, Parle G: {pg_strategy.capitalize()}")
     
     # Determine recommendations based on Nash equilibria and payoffs
     recommendations = {}
@@ -1025,14 +1014,14 @@ def generate_chart(chart_type, year):
         payoffs = analysis.get("full_payoffs", {})
         
         # Extract payoffs for Milk Bikis when Parle G maintains
-        mb_gd_payoffs = np.zeros((2, 2))
+        cc_gd_payoffs = np.zeros((2, 2))
         
         strategies = ["maintain", "shrink"]
-        for i, mb_strategy in enumerate(strategies):
+        for i, cc_strategy in enumerate(strategies):
             for j, gd_strategy in enumerate(strategies):
-                mb_gd_payoffs[i, j] = payoffs.get(mb_strategy, {}).get(gd_strategy, {}).get("maintain", {}).get("Milk Bikis", 0)
+                cc_gd_payoffs[i, j] = payoffs.get(cc_strategy, {}).get(gd_strategy, {}).get("maintain", {}).get("Milk Bikis", 0)
         
-        sns.heatmap(mb_gd_payoffs, annot=True, fmt=".2f", cmap="YlGnBu", 
+        sns.heatmap(cc_gd_payoffs, annot=True, fmt=".2f", cmap="YlGnBu", 
                     xticklabels=strategies, yticklabels=strategies, ax=ax)
         
         ax.set_title("Milk Bikis Payoffs (when Parle G maintains)")

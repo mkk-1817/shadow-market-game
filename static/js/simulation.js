@@ -43,47 +43,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fetch available years
   async function fetchYears() {
-    try {
-      const response = await fetch("/api/years")
-      if (!response.ok) {
-        console.error("Failed to fetch years from API")
-        return [2018, 2019, 2020, 2021, 2022, 2023] // Fallback years
-      }
-      const years = await response.json()
-      if (!years || !years.length) {
-        console.error("No years returned from API")
-        return [2018, 2019, 2020, 2021, 2022, 2023] // Fallback years
-      }
-      return years
-    } catch (error) {
-      console.error("Error fetching years:", error)
-      return [2018, 2019, 2020, 2021, 2022, 2023] // Fallback years
+    const response = await fetch("/api/years")
+    if (!response.ok) {
+      throw new Error("Failed to fetch years")
     }
+    return await response.json()
   }
 
   // Populate year selector dropdown
   function populateYearSelector(years) {
     const selector = document.getElementById("yearSelector")
-    if (!selector) {
-      console.error("Year selector element not found")
-      return
-    }
-
-    // Clear existing options
     selector.innerHTML = ""
 
-    console.log("Populating years:", years)
-
-    // Add new options
     years.forEach((year) => {
       const option = document.createElement("option")
-      option.value = year.toString()
-      option.textContent = year.toString()
+      option.value = year
+      option.textContent = year
       selector.appendChild(option)
     })
-
-    // Log the number of options added
-    console.log(`Added ${selector.options.length} year options to dropdown`)
   }
 
   // Update scenario parameters based on selected scenario type
@@ -162,7 +139,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <div class="mb-3">
                         <label for="competitorCompany" class="form-label">Company</label>
                         <select class="form-select" id="competitorCompany">
-                            <option value="Coca Cola">Coca Cola</option>
+                            <option value="Milk Bikis">Milk Bikis</option>
                             <option value="Good Day">Good Day</option>
                             <option value="Parle G">Parle G</option>
                         </select>
@@ -347,9 +324,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("simulationResults")
     container.innerHTML = ""
 
+    if (!simulations || simulations.length === 0) {
+      container.innerHTML = "<p class='text-center py-5 text-muted'>No simulation results available</p>"
+      return
+    }
+
     simulations.forEach((simulation) => {
+      if (!simulation || !simulation.result) {
+        console.error("Invalid simulation result:", simulation)
+        return
+      }
+
       const resultElement = document.createElement("div")
       resultElement.className = "simulation-result"
+
+      // Get Nash equilibrium text
+      const nashEquilibriumText = simulation.result.nash_equilibrium && simulation.result.nash_equilibrium.length > 0 
+        ? simulation.result.nash_equilibrium[0] 
+        : "No clear equilibrium found"
 
       // Create result content
       resultElement.innerHTML = `
@@ -357,20 +349,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 <i class="bi bi-diagram-3"></i> ${simulation.scenario.name}
             </div>
             <div class="simulation-nash mb-3">
-                <strong>Nash Equilibrium:</strong> ${simulation.result.nash_equilibrium[0] || "No clear equilibrium found"}
+                <strong>Nash Equilibrium:</strong> ${nashEquilibriumText}
             </div>
             <div class="mb-3">
                 <strong>Recommended Strategies:</strong>
                 <div class="simulation-recommendations">
-                    <span class="badge ${simulation.result.recommendations["Coca Cola"] === "shrink" ? "badge-shrink" : "badge-maintain"}">
-                        Coca Cola: ${simulation.result.recommendations["Coca Cola"].charAt(0).toUpperCase() + simulation.result.recommendations["Coca Cola"].slice(1)}
-                    </span>
-                    <span class="badge ${simulation.result.recommendations["Good Day"] === "shrink" ? "badge-shrink" : "badge-maintain"}">
-                        Good Day: ${simulation.result.recommendations["Good Day"].charAt(0).toUpperCase() + simulation.result.recommendations["Good Day"].slice(1)}
-                    </span>
-                    <span class="badge ${simulation.result.recommendations["Parle G"] === "shrink" ? "badge-shrink" : "badge-maintain"}">
-                        Parle G: ${simulation.result.recommendations["Parle G"].charAt(0).toUpperCase() + simulation.result.recommendations["Parle G"].slice(1)}
-                    </span>
+                    ${getRecommendationBadges(simulation.result.recommendations || {})}
                 </div>
             </div>
             <div class="mb-3">
@@ -391,6 +375,26 @@ document.addEventListener("DOMContentLoaded", () => {
       document.getElementById("simulationComparison").innerHTML =
         "<p class='text-center py-5 text-muted'>Run multiple simulations to compare results</p>"
     }
+  }
+
+  // Helper function to generate recommendation badges
+  function getRecommendationBadges(recommendations) {
+    if (!recommendations || Object.keys(recommendations).length === 0) {
+      return "<span class='text-muted'>No recommendations available</span>"
+    }
+
+    const companies = ["Milk Bikis", "Good Day", "Parle G"]
+    return companies.map(company => {
+      const recommendation = recommendations[company]
+      if (!recommendation) return ""
+      
+      const badgeClass = recommendation === "shrink" ? "badge-shrink" : "badge-maintain"
+      const capitalizedRecommendation = recommendation.charAt(0).toUpperCase() + recommendation.slice(1)
+      
+      return `<span class="badge ${badgeClass}">
+                ${company}: ${capitalizedRecommendation}
+              </span>`
+    }).join('')
   }
 
   // Add this new function to provide more context about the scenario impact
@@ -422,6 +426,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const container = document.getElementById("simulationComparison")
     container.innerHTML = ""
 
+    // Filter out invalid simulations
+    const validSimulations = simulations.filter(sim => sim && sim.result && sim.result.recommendations)
+    
+    if (validSimulations.length === 0) {
+      container.innerHTML = "<p class='text-center py-5 text-muted'>No valid simulation results to compare</p>"
+      return
+    }
+
     // Create comparison table
     const table = document.createElement("table")
     table.className = "table table-bordered"
@@ -431,7 +443,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const headerRow = document.createElement("tr")
     headerRow.innerHTML = `
             <th>Scenario</th>
-            <th>Coca Cola</th>
+            <th>Milk Bikis</th>
             <th>Good Day</th>
             <th>Parle G</th>
         `
@@ -441,19 +453,20 @@ document.addEventListener("DOMContentLoaded", () => {
     // Create body
     const tbody = document.createElement("tbody")
 
-    simulations.forEach((simulation) => {
+    validSimulations.forEach((simulation) => {
       const row = document.createElement("tr")
+      const recommendations = simulation.result.recommendations || {}
 
       row.innerHTML = `
                 <td>${simulation.scenario.name}</td>
-                <td class="${simulation.result.recommendations["Coca Cola"] === "shrink" ? "text-danger" : "text-success"}">
-                    ${simulation.result.recommendations["Coca Cola"].charAt(0).toUpperCase() + simulation.result.recommendations["Coca Cola"].slice(1)}
+                <td class="${recommendations["Milk Bikis"] === "shrink" ? "text-danger" : "text-success"}">
+                    ${recommendations["Milk Bikis"] ? (recommendations["Milk Bikis"].charAt(0).toUpperCase() + recommendations["Milk Bikis"].slice(1)) : "N/A"}
                 </td>
-                <td class="${simulation.result.recommendations["Good Day"] === "shrink" ? "text-danger" : "text-success"}">
-                    ${simulation.result.recommendations["Good Day"].charAt(0).toUpperCase() + simulation.result.recommendations["Good Day"].slice(1)}
+                <td class="${recommendations["Good Day"] === "shrink" ? "text-danger" : "text-success"}">
+                    ${recommendations["Good Day"] ? (recommendations["Good Day"].charAt(0).toUpperCase() + recommendations["Good Day"].slice(1)) : "N/A"}
                 </td>
-                <td class="${simulation.result.recommendations["Parle G"] === "shrink" ? "text-danger" : "text-success"}">
-                    ${simulation.result.recommendations["Parle G"].charAt(0).toUpperCase() + simulation.result.recommendations["Parle G"].slice(1)}
+                <td class="${recommendations["Parle G"] === "shrink" ? "text-danger" : "text-success"}">
+                    ${recommendations["Parle G"] ? (recommendations["Parle G"].charAt(0).toUpperCase() + recommendations["Parle G"].slice(1)) : "N/A"}
                 </td>
             `
 
@@ -469,7 +482,7 @@ document.addEventListener("DOMContentLoaded", () => {
     summary.innerHTML = `
             <h6>Key Findings</h6>
             <ul>
-                ${generateKeyFindings(simulations)}
+                ${generateKeyFindings(validSimulations)}
             </ul>
         `
 
@@ -480,20 +493,24 @@ document.addEventListener("DOMContentLoaded", () => {
   function generateKeyFindings(simulations) {
     const findings = []
 
-    // Check if any scenario changes Coca Cola's strategy
-    const cocaColaStrategies = simulations.map((s) => s.result.recommendations["Coca Cola"])
-    if (new Set(cocaColaStrategies).size > 1) {
-      findings.push("<li>Coca Cola's optimal strategy is sensitive to market conditions</li>")
+    if (simulations.length === 0) {
+      return "<li>No valid simulation data available for analysis</li>"
+    }
+
+    // Check if any scenario changes Milk Bikis's strategy
+    const milkBikisStrategies = simulations.map((s) => s.result.recommendations["Milk Bikis"]).filter(Boolean)
+    if (new Set(milkBikisStrategies).size > 1) {
+      findings.push("<li>Milk Bikis's optimal strategy is sensitive to market conditions</li>")
     }
 
     // Check if any scenario changes Good Day's strategy
-    const goodDayStrategies = simulations.map((s) => s.result.recommendations["Good Day"])
+    const goodDayStrategies = simulations.map((s) => s.result.recommendations["Good Day"]).filter(Boolean)
     if (new Set(goodDayStrategies).size > 1) {
       findings.push("<li>Good Day's optimal strategy is sensitive to market conditions</li>")
     }
 
     // Check if any scenario changes Parle G's strategy
-    const parleGStrategies = simulations.map((s) => s.result.recommendations["Parle G"])
+    const parleGStrategies = simulations.map((s) => s.result.recommendations["Parle G"]).filter(Boolean)
     if (new Set(parleGStrategies).size > 1) {
       findings.push("<li>Parle G's optimal strategy is sensitive to market conditions</li>")
     }
@@ -509,7 +526,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const baselineStrategies = baselineScenario.result.recommendations
 
         // Check each company for changes
-        ;["Coca Cola", "Good Day", "Parle G"].forEach((company) => {
+        ;["Milk Bikis", "Good Day", "Parle G"].forEach((company) => {
           const changed = awarenessScenarios.some(
             (s) => s.result.recommendations[company] !== baselineStrategies[company],
           )
@@ -539,7 +556,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Update last updated timestamp
   function updateLastUpdated(timestamp) {
     const lastUpdatedElement = document.getElementById("lastUpdated")
-    if (lastUpdatedElement) {
+    if (lastUpdatedElement && timestamp) {
       const date = new Date(timestamp)
       lastUpdatedElement.textContent = date.toLocaleString()
     }
